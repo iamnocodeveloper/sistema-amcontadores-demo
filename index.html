@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AM Contadores y Abogados · Sistema del despacho (demo)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0f2740; --navy2:#173a5c; --ink:#1c2733; --gray:#5c6878; --line:#e2e8ef;
+  --bg:#f1f4f8; --card:#ffffff; --gold:#c8912a; --gold-soft:#fbf2dc;
+  --teal:#0e7c66; --teal-soft:#e2f3ee; --blue:#2f6fb0; --blue-soft:#eaf1fb;
+  --amber:#b9762a; --amber-soft:#fbeedd; --red:#c0392b; --red-soft:#fbe9e7;
+  --green:#1f8a5b; --green-soft:#e6f5ee; --purple:#7a4bb0; --purple-soft:#f1eafb;
+  --shadow:0 1px 2px rgba(16,24,40,.06),0 8px 24px rgba(16,24,40,.06);
+  --radius:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{margin:0;font-weight:600;letter-spacing:-.01em}
+a{color:var(--blue);text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+.app{display:grid;grid-template-columns:252px 1fr;min-height:100vh}
+/* Sidebar */
+.side{background:var(--navy);color:#dbe3f0;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;z-index:70}
+.brand{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,.08)}
+.brand .logo{display:flex;align-items:center;gap:10px}
+.brand .mark{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--gold),#a8741d);display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.brand .mark svg{width:20px;height:20px}
+.brand b{font-size:15px;color:#fff;font-weight:700;letter-spacing:-.02em;display:block}
+.brand small{font-size:10.5px;color:#8ea0bd;text-transform:uppercase;letter-spacing:.08em}
+.nav{padding:10px 10px;display:flex;flex-direction:column;gap:2px}
+.nav button{display:flex;align-items:center;gap:11px;background:none;border:0;color:#b9c6dc;padding:10px 12px;border-radius:9px;font-size:14px;text-align:left;width:100%}
+.nav button svg{width:18px;height:18px;flex:0 0 auto;opacity:.9}
+.nav button:hover{background:rgba(255,255,255,.06);color:#fff}
+.nav button.active{background:var(--navy2);color:#fff;box-shadow:inset 3px 0 0 var(--gold)}
+.nav .sep{margin:8px 12px;border-top:1px solid rgba(255,255,255,.08)}
+.side .foot{margin-top:auto;padding:14px 16px;font-size:11px;color:#7d8fae;border-top:1px solid rgba(255,255,255,.08)}
+/* Main */
+.main{min-width:0;display:flex;flex-direction:column}
+.top{background:#fff;border-bottom:1px solid var(--line);padding:13px 22px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:20}
+.top .who{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--gray)}
+.av{width:32px;height:32px;border-radius:50%;background:var(--navy2);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600}
+.content{padding:22px;max-width:1200px;width:100%;margin:0 auto}
+.page-title{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+.page-title h2{font-size:21px}
+.page-title p{margin:3px 0 0;color:var(--gray);font-size:13px}
+.sec{display:none}
+.sec.on{display:block}
+/* Buttons */
+.btn{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:9px;padding:9px 14px;font-size:13.5px;font-weight:500;display:inline-flex;align-items:center;gap:8px}
+.btn svg{width:16px;height:16px}
+.btn:hover{border-color:#c9d1de;background:#fbfcfe}
+.btn.primary{background:var(--navy);border-color:var(--navy);color:#fff}
+.btn.primary:hover{background:var(--navy2)}
+.btn.gold{background:var(--gold);border-color:var(--gold);color:#3a2a05;font-weight:600}
+.btn.gold:hover{background:#b17f1d}
+.btn.sm{padding:6px 11px;font-size:12.5px}
+/* Cards */
+.grid{display:grid;gap:14px}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g2{grid-template-columns:repeat(2,1fr)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);min-width:0}
+.card .hd{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.card .hd h3{font-size:14px}
+.card .hd .sub{font-size:12px;color:var(--gray)}
+.card .bd{padding:16px}
+.kpi{padding:16px 18px;position:relative}
+.kpi .n{font-size:26px;font-weight:700;letter-spacing:-.02em}
+.kpi .l{font-size:12.5px;color:var(--gray);margin-top:2px}
+.kpi .t{font-size:11.5px;color:var(--gold);font-weight:600;margin-top:7px}
+.kpi .ico{position:absolute;right:14px;top:14px;width:34px;height:34px;border-radius:9px;background:var(--gold-soft);display:flex;align-items:center;justify-content:center}
+.kpi .ico svg{width:18px;height:18px;color:var(--gold)}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:999px;border:1px solid transparent;white-space:nowrap}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor;display:inline-block;flex:0 0 auto}
+.s-aldia{background:var(--green-soft);color:#157a4e}
+.s-presentado{background:var(--blue-soft);color:#2560a6}
+.s-porvencer{background:var(--amber-soft);color:#a4630c}
+.s-vencido{background:var(--red-soft);color:#a5281c}
+.s-solicitada{background:var(--amber-soft);color:#a4630c}
+.s-agendada{background:var(--blue-soft);color:#2560a6}
+.s-atendida{background:var(--green-soft);color:#157a4e}
+.s-pagado{background:var(--green-soft);color:#157a4e}
+.s-pendiente{background:var(--amber-soft);color:#a4630c}
+/* Table */
+.table-wrap{overflow-x:auto;min-width:0}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line);white-space:nowrap;vertical-align:top}
+th{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--gray);font-weight:600;background:#fafbfd}
+tbody tr:hover{background:#fafbfd}
+tr.clickable{cursor:pointer}
+td.wrap,th.wrap{white-space:normal;min-width:150px}
+/* Filters */
+.filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.input{position:relative;flex:1;min-width:200px}
+.input svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:#98a2b3}
+.input input{width:100%;padding:9px 12px 9px 34px;border:1px solid var(--line);border-radius:9px;font-size:13.5px;background:#fff}
+/* Calendar */
+.cal-head{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px}
+.cal-head div{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--gray);text-align:center;padding:4px 0}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cday{min-height:78px;border:1px solid var(--line);border-radius:10px;background:#fff;padding:6px 7px;overflow:hidden}
+.cday.muted{background:#f7f9fc;border-color:#eef2f7;color:#c2ccd8}
+.cday.today{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold-soft)}
+.cday .dn{font-size:12px;font-weight:600;color:var(--gray)}
+.cday.today .dn{color:var(--gold);font-weight:700}
+.cday .ev{margin-top:4px;display:flex;flex-direction:column;gap:3px}
+.cday .chip{font-size:10px;line-height:1.25;padding:2px 5px;border-radius:5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.t-iva{background:var(--blue-soft);color:#2560a6}
+.t-ccss{background:var(--teal-soft);color:#0b6a56}
+.t-renta{background:var(--amber-soft);color:#a4630c}
+.t-legal{background:var(--purple-soft);color:#6a3ba3}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--gray);padding-top:12px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+/* info rows */
+.info-row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px dashed var(--line);font-size:13.5px}
+.info-row:last-child{border-bottom:0}
+.info-row .k{color:var(--gray)}
+.info-row .v{font-weight:600;text-align:right}
+/* whatsapp mock */
+.wa{background:#e7ded4;border-radius:14px;padding:12px;background-image:radial-gradient(rgba(255,255,255,.35) 1px,transparent 1px);background-size:14px 14px}
+.wa .phone{background:#075e54;color:#fff;border-radius:10px 10px 0 0;padding:9px 12px;font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:8px}
+.wa .thread{background:#efe7dd;padding:14px 10px;border-radius:0 0 10px 10px;min-height:120px}
+.wa .msg{background:#fff;max-width:90%;padding:8px 11px;border-radius:10px;font-size:13px;box-shadow:0 1px 1px rgba(0,0,0,.08);margin-bottom:9px;position:relative;white-space:pre-line}
+.wa .msg.out{background:#dcf8c6;margin-left:auto}
+.wa .msg .tm{font-size:10px;color:#8b9199;text-align:right;margin-top:4px}
+/* agenda */
+.agenda{display:grid;grid-template-columns:repeat(6,minmax(140px,1fr));gap:10px;overflow-x:auto;padding-bottom:6px}
+.acol{min-width:140px}
+.aday{font-size:12px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:.04em;padding-bottom:8px;border-bottom:2px solid var(--line);margin-bottom:10px;text-align:center}
+.aitem{background:#fafbfd;border:1px solid var(--line);border-left:3px solid var(--blue);border-radius:8px;padding:9px 10px;font-size:12px;margin-bottom:8px}
+.aitem b{display:block;font-size:12.5px;margin-bottom:2px}
+.aitem .who{color:var(--gray);font-size:11px}
+.aitem .tm{margin-top:4px;display:flex;justify-content:space-between;align-items:center;gap:6px}
+.aitem.prof-ana{border-left-color:var(--gold)}
+.aitem.prof-marco{border-left-color:var(--purple)}
+/* charts */
+.chart{display:flex;align-items:flex-end;gap:10px;height:170px;padding-top:10px}
+.chart .col{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0;height:100%;justify-content:flex-end}
+.chart .stack{width:100%;max-width:46px;display:flex;flex-direction:column;border-radius:6px 6px 0 0;overflow:hidden}
+.chart .stack i{display:block;width:100%}
+.chart .cl{font-size:11px;color:var(--gray)}
+.hbar-row{display:flex;align-items:center;gap:10px;margin-bottom:11px;font-size:13px}
+.hbar-row .lb{width:150px;flex:0 0 auto}
+.hbar-row .tr{flex:1;background:#eef1f6;border-radius:6px;height:20px;overflow:hidden}
+.hbar-row .tr i{display:block;height:100%;border-radius:6px}
+.hbar-row .vl{width:52px;text-align:right;font-weight:600;color:var(--gray)}
+.donut-wrap{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.donut{flex:0 0 auto}
+.donut circle{transition:stroke-dasharray .4s}
+.dleg{font-size:13px;display:flex;flex-direction:column;gap:8px}
+.dleg span{display:flex;align-items:center;gap:8px}
+.dleg i{width:12px;height:12px;border-radius:3px;display:inline-block}
+.dleg b{margin-left:auto}
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(16,24,40,.58);display:none;align-items:flex-start;justify-content:center;padding:18px;z-index:60;overflow-y:auto}
+.modal.on{display:flex}
+.modal .box{background:#fff;border-radius:16px;max-width:620px;width:100%;padding:22px;position:relative;margin:auto}
+.modal .x{position:absolute;top:12px;right:14px;background:none;border:0;font-size:20px;color:var(--gray);line-height:1}
+label.f{display:block;font-size:12.5px;font-weight:600;color:var(--gray);margin:12px 0 5px}
+input.f,select.f,textarea.f{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font-size:13.5px;font-family:inherit}
+.note{background:#fafbfd;border:1px solid var(--line);border-radius:10px;padding:12px;font-size:12.5px;color:var(--gray)}
+.note b{color:var(--ink)}
+.svc-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.svc-item:last-child{border-bottom:0}
+.svc-item .si{width:36px;height:36px;border-radius:9px;background:var(--teal-soft);display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.svc-item .si svg{width:19px;height:19px;color:var(--teal)}
+/* welcome */
+.welcome{position:fixed;inset:0;background:linear-gradient(140deg,#0a1b2c,#0f2740 52%,#173a5c);color:#fff;display:flex;align-items:center;justify-content:center;padding:22px;z-index:80;overflow-y:auto}
+.welcome .in{max-width:520px;text-align:center}
+.welcome .mark{width:62px;height:62px;border-radius:16px;background:linear-gradient(135deg,var(--gold),#a8741d);display:flex;align-items:center;justify-content:center;margin:0 auto 18px}
+.welcome .mark svg{width:34px;height:34px}
+.welcome h1{font-size:25px;color:#fff}
+.welcome .lead{color:#c7d3e8;margin:12px 0 6px;font-size:15px}
+.welcome .expl{color:#9fb0c9;margin:0 0 22px;font-size:13px}
+.welcome .btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.welcome .tag{display:inline-block;font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--gold);margin-bottom:10px}
+.welcome .legal{margin-top:26px;font-size:11.5px;color:#7d8fae}
+/* tour */
+.tour-spot{position:fixed;border-radius:12px;box-shadow:0 0 0 9999px rgba(9,16,28,.72),0 0 0 3px var(--gold);z-index:91;pointer-events:none;transition:all .28s ease}
+.tour-card{position:fixed;z-index:92;background:#fff;border-radius:14px;box-shadow:0 20px 50px rgba(0,0,0,.35);max-width:390px;width:calc(100% - 28px);padding:18px}
+.tour-card .step{font-size:11.5px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.08em}
+.tour-card h3{font-size:16.5px;margin:7px 0 8px;color:var(--navy)}
+.tour-card p{margin:0;font-size:13.5px;color:var(--gray)}
+.tour-card .navrow{display:flex;align-items:center;gap:8px;margin-top:16px;flex-wrap:wrap}
+.tour-card .navrow .sp{flex:1}
+.tour-card .prog{height:4px;border-radius:3px;background:#eef1f6;margin-top:14px;overflow:hidden;display:none}
+.tour-card .prog.on{display:block}
+.tour-card .prog i{display:block;height:100%;background:var(--gold);width:0}
+.tour-close{position:fixed;top:14px;right:14px;z-index:93;background:#fff;border:0;border-radius:999px;padding:9px 14px;font-size:13px;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,.3)}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:11px 18px;border-radius:10px;font-size:13px;z-index:120;box-shadow:0 10px 30px rgba(0,0,0,.3);opacity:0;transition:.25s;pointer-events:none;max-width:92vw;text-align:center}
+.toast.on{opacity:1}
+.foot-note{text-align:center;color:var(--gray);font-size:12px;padding:26px 16px;border-top:1px solid var(--line);margin-top:26px}
+/* public page */
+.pub .hero{background:linear-gradient(135deg,var(--navy),#173a5c);color:#fff;padding:40px 22px;border-radius:var(--radius);margin-bottom:18px}
+.pub .hero .tag{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--gold);font-weight:600}
+.pub .hero h1{font-size:28px;margin:10px 0 0}
+.pub .hero p{color:#c7d3e8;margin:10px 0 18px;font-size:15px;max-width:620px}
+.pub .qa{background:var(--gold-soft);border:1px solid #efdcae;border-radius:12px;padding:14px 16px;font-size:13.5px;color:#6b4d0c;margin-top:14px}
+.menu-btn{display:none;background:none;border:0;padding:6px}
+.menu-btn svg{width:22px;height:22px;color:var(--navy)}
+@media(max-width:960px){
+  .g4{grid-template-columns:repeat(2,1fr)}
+  .g3{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+}
+@media(max-width:720px){
+  .app{grid-template-columns:1fr}
+  .side{position:fixed;left:0;top:0;bottom:0;width:252px;transform:translateX(-100%);transition:.25s}
+  .side.open{transform:none}
+  .menu-btn{display:inline-flex}
+  .scrim{position:fixed;inset:0;background:rgba(9,16,28,.5);z-index:65;display:none}
+  .scrim.on{display:block}
+  .content{padding:16px}
+  .g4{grid-template-columns:1fr}
+  .tour-card{max-width:none}
+  #crumb{display:none}
+  .top .who>span{display:none}
+  .top{padding:12px 16px}
+  .cday{min-height:60px;padding:5px}
+  .cday .chip{font-size:9px}
+  .hbar-row .lb{width:110px}
+  .pub .hero h1{font-size:23px}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== ENTRADA ===== -->
+<div class="welcome" id="welcome">
+  <div class="in">
+    <div class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="#3a2a05" stroke-width="2"><path d="M12 3v18M4 7h16M6 7l-3 6a3.5 3.5 0 0 0 6 0zM18 7l-3 6a3.5 3.5 0 0 0 6 0z"/></svg></div>
+    <span class="tag">Demo del sistema del despacho</span>
+    <h1>AM Contadores y Abogados</h1>
+    <p class="lead">El tablero donde el despacho ve, en una sola pantalla, qué le toca a cada cliente y cuándo.</p>
+    <p class="expl">Sus vencimientos (declaraciones de impuestos, cargas sociales, presentaciones anuales y trámites legales) avisados solos antes de la fecha, además de clientes, atenciones y citas, honorarios e informes. Ejemplo navegable con datos ficticios.</p>
+    <div class="btns">
+      <button class="btn gold" onclick="enterApp()">Entrar al sistema</button>
+      <button class="btn" style="background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:#fff" onclick="enterApp();setTimeout(startTour,350)">Ver el recorrido guiado</button>
+    </div>
+    <div class="legal">Demo de referencia hecho por Nocodeveloper. Los datos son de ejemplo.</div>
+  </div>
+</div>
+
+<div class="scrim" id="scrim" onclick="toggleSide()"></div>
+
+<div class="app">
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="side" id="side">
+    <div class="brand">
+      <div class="logo">
+        <div class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="#3a2a05" stroke-width="2"><path d="M12 3v18M4 7h16M6 7l-3 6a3.5 3.5 0 0 0 6 0zM18 7l-3 6a3.5 3.5 0 0 0 6 0z"/></svg></div>
+        <div><b>AM Contadores</b><small>y Abogados · Costa Rica</small></div>
+      </div>
+    </div>
+    <nav class="nav" id="nav">
+      <button data-sec="panel" class="active" onclick="go('panel')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>Panel del día</button>
+      <button data-sec="vencimientos" onclick="go('vencimientos')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v3M16 3v3M8.5 14l2 2 4-4"/></svg>Vencimientos</button>
+      <button data-sec="clientes" onclick="go('clientes')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 20c0-3.6 2.6-5.6 5.5-5.6S14.5 16.4 14.5 20"/><path d="M17 8h4M17 12h4M17 16h4"/></svg>Clientes</button>
+      <button data-sec="atenciones" onclick="go('atenciones')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/><circle cx="12" cy="12" r="3"/></svg>Atenciones y citas</button>
+      <button data-sec="honorarios" onclick="go('honorarios')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2.5" y="6" width="19" height="13" rx="2"/><path d="M2.5 10h19M6 15h4"/></svg>Honorarios</button>
+      <button data-sec="informes" onclick="go('informes')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Informes</button>
+      <div class="sep"></div>
+      <button data-sec="web" onclick="go('web')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18 14 14 0 0 1 0-18z"/></svg>Web pública</button>
+      <button onclick="startTour()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>Recorrido guiado</button>
+    </nav>
+    <div class="foot">Demo · datos de ejemplo<br>Hecho por Nocodeveloper</div>
+  </aside>
+
+  <!-- ===== MAIN ===== -->
+  <div class="main">
+    <header class="top">
+      <button class="menu-btn" onclick="toggleSide()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+      <div id="crumb" style="font-size:13px;color:var(--gray)">AM Contadores y Abogados · Costa Rica</div>
+      <div class="who">
+        <button class="btn sm" id="btn-tour" onclick="startTour()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>Ver el recorrido guiado</button>
+        <span class="av">AM</span><span>AM Contadores y Abogados</span>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- ===== PANEL ===== -->
+      <section class="sec on" id="sec-panel">
+        <div class="page-title">
+          <div><h2>Panel del día</h2><p id="today-label">Lo que le toca hoy al despacho</p></div>
+          <button class="btn primary" onclick="go('vencimientos')">Ver vencimientos</button>
+        </div>
+
+        <div class="grid g4" style="margin-bottom:14px">
+          <div class="card kpi"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 2v4M16 2v4M3 9h18"/><rect x="3" y="4.5" width="18" height="17" rx="2"/></svg></div><div class="n" id="k-hoy">0</div><div class="l">Vencimientos que cumplir hoy</div><div class="t" id="k-hoy-t">con aviso ya enviado</div></div>
+          <div class="card kpi"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><div class="n" id="k-semana">0</div><div class="l">Vencen esta semana</div><div class="t">para no pagar recargos</div></div>
+          <div class="card kpi"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h9M4 12h9M4 18h6"/><path d="M17 10l2 2 4-4" transform="translate(-2,2)"/></svg></div><div class="n" id="k-atenciones">0</div><div class="l">Atenciones y citas de hoy</div><div class="t" id="k-atenciones-t">entre contador y abogado</div></div>
+          <div class="card kpi"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2.5" y="6" width="19" height="13" rx="2"/><path d="M2.5 10h19"/></svg></div><div class="n" id="k-cobros">₡0</div><div class="l">Cobros del mes</div><div class="t" id="k-cobros-t">facturado con honorarios</div></div>
+        </div>
+
+        <div class="grid g2" style="margin-bottom:14px">
+          <div class="card" id="tour-hoy">
+            <div class="hd"><h3>Vencimientos que cumplir</h3><span class="sub">Hoy y esta semana</span></div>
+            <div class="bd" id="hoy-list"></div>
+          </div>
+          <div class="card">
+            <div class="hd"><h3>Atenciones y citas de hoy</h3><span class="sub">Lunes 23 de noviembre</span></div>
+            <div class="bd" id="hoy-citas"></div>
+          </div>
+        </div>
+
+        <div class="grid g2">
+          <div class="card">
+            <div class="hd"><h3>Tareas sin cerrar</h3><span class="sub">Pendientes del equipo</span></div>
+            <div class="bd" id="hoy-tareas"></div>
+          </div>
+          <div class="card">
+            <div class="hd"><h3>Avisos automáticos pendientes de enviar</h3><span class="sub">Mensajes que salen solos por WhatsApp</span></div>
+            <div class="bd" id="hoy-avisos"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== VENCIMIENTOS ===== -->
+      <section class="sec" id="sec-vencimientos">
+        <div class="page-title">
+          <div><h2>Vencimientos por cliente</h2><p>Cada obligación ubicada en su fecha, con el aviso automático antes de que venza</p></div>
+          <button class="btn primary" onclick="go('clientes')">Ver clientes</button>
+        </div>
+
+        <div class="card" id="tour-cal" style="margin-bottom:14px">
+          <div class="hd"><h3>Calendario de vencimientos · Noviembre 2026</h3><span class="sub">Pase el cursor o toque un día con eventos</span></div>
+          <div class="bd">
+            <div class="cal-head"><div>Dom</div><div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div></div>
+            <div class="cal" id="cal"></div>
+            <div class="legend">
+              <span><i style="background:#2f6fb0"></i>Impuesto de ventas (IVA)</span>
+              <span><i style="background:#0e7c66"></i>Seguridad social (CCSS)</span>
+              <span><i style="background:#c8912a"></i>Declaración anual de renta</span>
+              <span><i style="background:#7a4bb0"></i>Trámite legal</span>
+              <span><i style="background:#c0392b"></i>Día de hoy: 23</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:14px">
+          <div class="hd"><h3>Lista ordenada por proximidad</h3><span class="sub">Del más urgente al más lejano</span></div>
+          <div class="bd" style="padding:0">
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Cliente</th><th>Obligación</th><th>Fecha</th><th>Estado</th><th>Aviso automático</th><th></th></tr></thead>
+                <tbody id="venc-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" id="tour-aviso">
+          <div class="hd"><h3>Avisos automáticos</h3><span class="sub">Lo que el sistema manda solo, sin que nadie lo recuerde</span></div>
+          <div class="bd">
+            <p style="margin:0 0 14px;font-size:13.5px;color:var(--gray)">Cada vencimiento programa dos recordatorios: uno <b>7 días antes</b> y otro <b>2 días antes</b>. Le llegan al cliente por WhatsApp con la fecha y lo que hay que presentar. Aquí puede ver el mensaje exacto que recibiría.</p>
+            <div class="grid g2">
+              <div>
+                <div id="avisos-list"></div>
+              </div>
+              <div id="aviso-preview" class="note">Elija un aviso de la lista para ver el mensaje de WhatsApp.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== CLIENTES ===== -->
+      <section class="sec" id="sec-clientes">
+        <div class="page-title">
+          <div><h2>Clientes</h2><p id="clientes-count">Fichas con obligaciones, atenciones, documentos y responsable</p></div>
+          <button class="btn primary" onclick="go('atenciones')">Ver agenda</button>
+        </div>
+        <div class="filters">
+          <div class="input">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+            <input id="cl-q" type="text" placeholder="Buscar cliente por nombre o cédula…" oninput="renderClientes()">
+          </div>
+          <div class="filters" id="cl-filtros"></div>
+        </div>
+        <div class="card">
+          <div class="bd" style="padding:0">
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Cliente</th><th>Cédula</th><th>Servicios que cumplimos</th><th>Lo atiende</th><th>Estado</th></tr></thead>
+                <tbody id="clientes-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== ATENCIONES ===== -->
+      <section class="sec" id="sec-atenciones">
+        <div class="page-title">
+          <div><h2>Atenciones y citas</h2><p>Agenda de la semana por profesional: contador y abogado</p></div>
+          <button class="btn primary" onclick="go('clientes')">Ver clientes</button>
+        </div>
+
+        <div class="card" id="tour-agenda" style="margin-bottom:14px">
+          <div class="hd"><h3>Agenda de la semana</h3><span class="sub">Semana del 23 al 28 de noviembre 2026</span></div>
+          <div class="bd">
+            <div class="agenda" id="agenda"></div>
+          </div>
+        </div>
+
+        <div class="grid g2">
+          <div class="card" id="tour-solicitudes">
+            <div class="hd"><h3>Consultas nuevas sin agendar</h3><span class="sub">Se convierten en cita con un clic</span></div>
+            <div class="bd" id="solicitudes-list"></div>
+          </div>
+          <div class="card">
+            <div class="hd"><h3>Cómo funciona</h3><span class="sub">De la consulta a la cita</span></div>
+            <div class="bd">
+              <div class="svc-item"><div class="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg></div><div><b>1. Entra la consulta</b><div style="font-size:12.5px;color:var(--gray)">Un cliente escribe por la web o WhatsApp y queda registrada.</div></div></div>
+              <div class="svc-item"><div class="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><div><b>2. Se agenda la cita</b><div style="font-size:12.5px;color:var(--gray)">Se elige contador o abogado, día y hora.</div></div></div>
+              <div class="svc-item"><div class="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h9M4 12h9M4 18h6"/><path d="M15 16l2 2 4-4"/></svg></div><div><b>3. Se atiende y se cierra</b><div style="font-size:12.5px;color:var(--gray)">La cita pasa de solicitada a agendada y luego a atendida, con su nota.</div></div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== HONORARIOS ===== -->
+      <section class="sec" id="sec-honorarios">
+        <div class="page-title">
+          <div><h2>Honorarios</h2><p>Facturación del mes por cliente y concepto</p></div>
+          <button class="btn primary" onclick="go('informes')">Ver informes</button>
+        </div>
+        <div class="grid g3" style="margin-bottom:14px">
+          <div class="card kpi"><div class="n" id="h-total">₡0</div><div class="l">Facturado en noviembre</div></div>
+          <div class="card kpi"><div class="n" id="h-pagado" style="color:var(--green)">₡0</div><div class="l">Cobrado</div></div>
+          <div class="card kpi"><div class="n" id="h-pend" style="color:var(--amber)">₡0</div><div class="l">Pendiente de cobro</div></div>
+        </div>
+        <div class="card" id="tour-honor">
+          <div class="hd"><h3>Facturas del mes</h3><span class="sub">Noviembre 2026 · montos de ejemplo</span></div>
+          <div class="bd" style="padding:0">
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Cliente</th><th>Concepto</th><th>Profesional</th><th>Monto</th><th>Estado</th></tr></thead>
+                <tbody id="honor-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== INFORMES ===== -->
+      <section class="sec" id="sec-informes">
+        <div class="page-title">
+          <div><h2>Informes</h2><p>Números del despacho para decidir</p></div>
+          <button class="btn primary" onclick="go('web')">Ver web pública</button>
+        </div>
+        <div class="grid g2" id="tour-inf" style="margin-bottom:14px">
+          <div class="card">
+            <div class="hd"><h3>Vencimientos cumplidos vs. vencidos</h3><span class="sub">Últimos 6 meses</span></div>
+            <div class="bd"><div class="chart" id="ch-cumpl"></div>
+              <div class="legend" style="padding-top:8px"><span><i style="background:#0e7c66"></i>Cumplidos a tiempo</span><span><i style="background:#c0392b"></i>Vencidos</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="hd"><h3>Atenciones por mes</h3><span class="sub">Citas y asesorías atendidas</span></div>
+            <div class="bd"><div class="chart" id="ch-atenc"></div><div class="legend" style="padding-top:8px"><span><i style="background:#2f6fb0"></i>Atenciones atendidas</span></div></div>
+          </div>
+          <div class="card">
+            <div class="hd"><h3>Clientes por servicio</h3><span class="sub">En qué los apoya el despacho</span></div>
+            <div class="bd" id="ch-serv"></div>
+          </div>
+          <div class="card">
+            <div class="hd"><h3>Cobrado vs. pendiente</h3><span class="sub">Honorarios del mes</span></div>
+            <div class="bd">
+              <div class="donut-wrap">
+                <svg class="donut" id="ch-donut" width="150" height="150" viewBox="0 0 42 42"></svg>
+                <div class="dleg" id="ch-donut-leg"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== WEB PUBLICA ===== -->
+      <section class="sec" id="sec-web">
+        <div class="pub">
+          <div class="hero">
+            <span class="tag">Contadores y abogados · Costa Rica</span>
+            <h1>AM Contadores y Abogados</h1>
+            <p>Llevamos la contabilidad, los impuestos y la parte legal de su negocio, cumpliendo a tiempo con todas las obligaciones.</p>
+            <a class="btn gold" href="https://wa.me/50672072084" target="_blank" rel="noopener">Escribir por WhatsApp</a>
+          </div>
+
+          <div class="grid g2" style="margin-bottom:16px">
+            <div class="card"><div class="hd"><h3>Qué hacemos</h3></div><div class="bd">
+              <div class="svc-item"><div class="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div><div><b>Contabilidad</b><div style="font-size:12.5px;color:var(--gray)">Libros al día, estados financieros y controles mensuales.</div></div></div>
+              <div class="svc-item"><div class="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/></svg></div><div><b>Impuestos</b><div style="font-size:12.5px;color:var(--gray)">Declaraciones de IVA, renta y cargas sociales, presentadas dentro de plazo.</div></div></div>
+              <div class="svc-item"><div class="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v18M4 7h16M6 7l-3 6a3.5 3.5 0 0 0 6 0zM18 7l-3 6a3.5 3.5 0 0 0 6 0z"/></svg></div><div><b>Asesoría legal</b><div style="font-size:12.5px;color:var(--gray)">Consultas, contratos y acompañamiento en temas legales del negocio.</div></div></div>
+              <div class="svc-item"><div class="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 4h7l4 4v12H7z"/><path d="M14 4v4h4M10 13h5M10 16h5"/></svg></div><div><b>Trámites</b><div style="font-size:12.5px;color:var(--gray)">Constituciones, poderes, actas y gestiones ante registros.</div></div></div>
+            </div></div>
+
+            <div class="card"><div class="hd"><h3>Por qué conviene tener el calendario al día</h3></div><div class="bd">
+              <div class="info-row"><span class="k">Cumplir dentro de plazo</span><span class="v">menos recargos</span></div>
+              <div class="info-row"><span class="k">Cada obligación recordada</span><span class="v">sin memorizar fechas</span></div>
+              <div class="info-row"><span class="k">Aviso por WhatsApp</span><span class="v">7 y 2 días antes</span></div>
+              <div class="info-row"><span class="k">Un solo lugar</span><span class="v">impuestos, sociales y legal</span></div>
+              <div class="note" style="margin-top:14px">Con el calendario de vencimientos al día, su negocio no queda sorprendido por una fecha: se avisa, se prepara y se presenta a tiempo.</div>
+            </div></div>
+          </div>
+
+          <div class="card" id="tour-form">
+            <div class="hd"><h3>Solicitar asesoría</h3><span class="sub">Le armamos el mensaje de WhatsApp</span></div>
+            <div class="bd">
+              <div class="qa">Complete los datos y le preparamos un mensaje de WhatsApp listo para enviar a AM Contadores y Abogados (+506 7207 2084).</div>
+              <div class="grid g2" style="margin-top:14px">
+                <div>
+                  <label class="f">Nombre</label>
+                  <input class="f" id="wf-nombre" placeholder="Ej: María Rodríguez">
+                  <label class="f">Nombre del negocio</label>
+                  <input class="f" id="wf-negocio" placeholder="Ej: Panadería El Trigal">
+                  <label class="f">¿Qué necesita?</label>
+                  <select class="f" id="wf-necesidad">
+                    <option>Contabilidad mensual</option>
+                    <option>Declaración de impuestos (IVA y renta)</option>
+                    <option>Cargas sociales (CCSS)</option>
+                    <option>Asesoría legal</option>
+                    <option>Trámite legal</option>
+                  </select>
+                  <label class="f">Detalle (opcional)</label>
+                  <textarea class="f" id="wf-detalle" rows="2" placeholder="Cuéntenos brevemente su caso"></textarea>
+                  <button class="btn gold" style="margin-top:14px" onclick="armarConsulta()">Armar mensaje de WhatsApp</button>
+                </div>
+                <div>
+                  <div id="wf-result" class="note">Aquí aparecerá el mensaje listo para enviar.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+    <div class="foot-note">Demo de referencia hecho por Nocodeveloper. Los datos son de ejemplo.</div>
+  </div>
+</div>
+
+<!-- ===== MODAL FICHA CLIENTE ===== -->
+<div class="modal" id="ficha-modal">
+  <div class="box">
+    <button class="x" onclick="closeFicha()">&times;</button>
+    <div id="ficha-content"></div>
+  </div>
+</div>
+
+<!-- ===== MODAL AVISO WHATSAPP ===== -->
+<div class="modal" id="aviso-modal">
+  <div class="box" style="max-width:460px">
+    <button class="x" onclick="closeAviso()">&times;</button>
+    <div id="aviso-content"></div>
+  </div>
+</div>
+
+<!-- ===== MODAL CONVERTIR CONSULTA EN CITA ===== -->
+<div class="modal" id="cita-modal">
+  <div class="box" style="max-width:480px">
+    <button class="x" onclick="closeCita()">&times;</button>
+    <div id="cita-content"></div>
+  </div>
+</div>
+
+<!-- ===== TOUR ===== -->
+<div class="tour-spot" id="tour-spot" style="display:none"></div>
+<div class="tour-card" id="tour-card" style="display:none"></div>
+<button class="tour-close" id="tour-close" style="display:none" onclick="endTour()">Salir</button>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   AM Contadores y Abogados — demo del sistema del despacho
+   Datos de ejemplo (Costa Rica). Hecho por Nocodeveloper.
+   ============================================================ */
+
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),2800);}
+function fmt(n){return '₡'+n.toLocaleString('es-CR');}
+function initials(n){return n.split(' ').filter(w=>w.length>2).slice(0,2).map(w=>w[0]).join('').toUpperCase();}
+function shortName(n){
+  if(n.includes('S.A.'))return n.replace(/ S\.A\.?/,'').trim();
+  return n;
+}
+
+/* ---------- fecha de ejemplo ---------- */
+const DEMO = {year:2026, month:10, today:23};            // noviembre 2026, hoy = 23
+const MESES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const DIAS=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+const diasSemanaCR=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+function fechaCorta(d){return d+' '+MESES[DEMO.month].slice(0,3).toLowerCase();}
+
+/* ---------- tipos de obligación (con explicación en palabras llanas) ---------- */
+const TIPOS = {
+  iva:   {label:'Impuesto de ventas (IVA)', corto:'IVA', cls:'t-iva', color:'#2f6fb0',
+          explain:'IVA: impuesto que se paga sobre las ventas del mes.'},
+  ccss:  {label:'Seguridad social (CCSS)', corto:'CCSS', cls:'t-ccss', color:'#0e7c66',
+          explain:'CCSS: cuota de salud y pensiones de los trabajadores.'},
+  renta: {label:'Declaración anual de renta', corto:'Renta', cls:'t-renta', color:'#c8912a',
+          explain:'Renta: declaración de las ganancias del año.'},
+  legal: {label:'Trámite legal', corto:'Legal', cls:'t-legal', color:'#7a4bb0',
+          explain:'Trámite legal: poderes, actas y gestiones ante registros.'}
+};
+
+/* ---------- profesionales ---------- */
+const PROFS = {
+  ana:   {nombre:'Lic. Ana Mora',       rol:'Contadora',  cls:'prof-ana',   ini:'AM'},
+  marco: {nombre:'Lic. Marco Jiménez',  rol:'Abogado',    cls:'prof-marco', ini:'MJ'}
+};
+
+/* ---------- clientes ---------- */
+const CLIENTES = [
+  {id:'c1', nombre:'Comercial La Sabana S.A.',        cedula:'3-101-456789', zona:'San José',      tel:'+506 2-201-0000', desde:'2021', oblig:['iva','ccss'], prof:'ana',   estado:'al día'},
+  {id:'c2', nombre:'Panadería El Trigal',             cedula:'3-102-771234', zona:'Heredia',       tel:'+506 2-260-0000', desde:'2019', oblig:['iva','ccss'], prof:'ana',   estado:'con pendientes'},
+  {id:'c3', nombre:'Transportes del Valle S.A.',      cedula:'3-101-998877', zona:'Alajuela',      tel:'+506 2-440-0000', desde:'2020', oblig:['iva','renta','legal'], prof:'marco', estado:'con pendientes'},
+  {id:'c4', nombre:'Clínica Dental Sonrisa',          cedula:'3-103-224466', zona:'Cartago',       tel:'+506 2-590-0000', desde:'2022', oblig:['iva','renta'], prof:'ana',   estado:'al día'},
+  {id:'c5', nombre:'Restaurante Mar Azul',            cedula:'3-102-553311', zona:'Puntarenas',    tel:'+506 2-663-0000', desde:'2018', oblig:['iva','ccss'], prof:'ana',   estado:'con pendientes'},
+  {id:'c6', nombre:'Finca Agroecológica La Loma',     cedula:'3-104-119922', zona:'Guanacaste',    tel:'+506 2-670-0000', desde:'2023', oblig:['iva','renta'], prof:'ana',   estado:'al día'},
+  {id:'c7', nombre:'Constructora Sierra Verde S.A.',  cedula:'3-101-334455', zona:'San José',      tel:'+506 2-205-0000', desde:'2017', oblig:['legal','iva'], prof:'marco', estado:'con pendientes'},
+  {id:'c8', nombre:'Ferretería Central del Caribe',   cedula:'3-105-667788', zona:'Limón',         tel:'+506 2-758-0000', desde:'2020', oblig:['iva','ccss'], prof:'ana',   estado:'al día'},
+  {id:'c9', nombre:'Grupo Bebidas del Sol',           cedula:'3-101-220033', zona:'San José',      tel:'+506 2-283-0000', desde:'2022', oblig:['iva','ccss'], prof:'ana',   estado:'con pendientes'}
+];
+const CLIENTE_BY_ID = Object.fromEntries(CLIENTES.map(c=>[c.id,c]));
+
+/* ---------- vencimientos del mes (noviembre 2026) ---------- */
+const VENCIMIENTOS = [
+  {id:'v1', c:'c1', tipo:'iva',   dia:5,  estado:'presentado', concepto:'Declaración de IVA de octubre',                 prof:'ana'},
+  {id:'v2', c:'c5', tipo:'ccss',  dia:8,  estado:'presentado', concepto:'Pago de cargas sociales (CCSS) de octubre',     prof:'ana'},
+  {id:'v3', c:'c2', tipo:'ccss',  dia:12, estado:'vencido',    concepto:'Pago de cargas sociales (CCSS) de octubre',     prof:'ana'},
+  {id:'v4', c:'c3', tipo:'renta', dia:15, estado:'presentado', concepto:'Impuesto de renta · anticipo del período',      prof:'ana'},
+  {id:'v5', c:'c4', tipo:'iva',   dia:18, estado:'al día',     concepto:'Declaración de IVA de octubre',                 prof:'ana'},
+  {id:'v6', c:'c9', tipo:'ccss',  dia:20, estado:'vencido',    concepto:'Pago de cargas sociales (CCSS) de octubre',     prof:'ana'},
+  {id:'v7', c:'c6', tipo:'iva',   dia:23, estado:'por vencer', concepto:'Declaración de IVA de octubre',                 prof:'ana'},
+  {id:'v8', c:'c7', tipo:'legal', dia:23, estado:'por vencer', concepto:'Acta y poder ante el registro',                 prof:'marco'},
+  {id:'v9', c:'c5', tipo:'iva',   dia:25, estado:'por vencer', concepto:'Declaración de IVA de octubre',                 prof:'ana'},
+  {id:'v10',c:'c7', tipo:'legal', dia:25, estado:'por vencer', concepto:'Constitución de sociedad ante el registro',     prof:'marco'},
+  {id:'v11',c:'c2', tipo:'iva',   dia:26, estado:'por vencer', concepto:'Declaración de IVA de octubre',                 prof:'ana'},
+  {id:'v12',c:'c8', tipo:'iva',   dia:27, estado:'por vencer', concepto:'Declaración de IVA de octubre',                 prof:'ana'},
+  {id:'v13',c:'c3', tipo:'legal', dia:27, estado:'por vencer', concepto:'Trámite de poder general',                      prof:'marco'},
+  {id:'v14',c:'c4', tipo:'renta', dia:28, estado:'por vencer', concepto:'Impuesto de renta · declaración anual',         prof:'ana'},
+  {id:'v15',c:'c8', tipo:'ccss',  dia:30, estado:'por vencer', concepto:'Pago de cargas sociales (CCSS) de noviembre',   prof:'ana'},
+  {id:'v16',c:'c9', tipo:'iva',   dia:30, estado:'por vencer', concepto:'Declaración de IVA de octubre',                 prof:'ana'}
+];
+
+const ESTADO_INFO = {
+  'al día':     {label:'Al día',    cls:'s-aldia'},
+  'presentado': {label:'Presentado',cls:'s-presentado'},
+  'por vencer': {label:'Por vencer',cls:'s-porvencer'},
+  'vencido':    {label:'Vencido',   cls:'s-vencido'}
+};
+function pillEstado(e){const i=ESTADO_INFO[e]||ESTADO_INFO['por vencer'];return '<span class="pill '+i.cls+'"><span class="dot"></span>'+i.label+'</span>';}
+function pillSimple(label,cls){return '<span class="pill '+cls+'"><span class="dot"></span>'+label+'</span>';}
+
+/* aviso automático según proximidad */
+function avisoInfo(v){
+  const d7 = DEMO.today >= v.dia-7;   // ya salió el aviso de 7 días
+  const d2 = DEMO.today >= v.dia-2;   // ya salió el de 2 días
+  const dHoy = DEMO.today === v.dia;
+  return {
+    d7: v.estado==='presentado'||v.estado==='al día' ? 'enviado' : (d7?'enviado':'programado'),
+    d2: v.estado==='presentado'||v.estado==='al día' ? 'enviado' : (d2?'enviado':'programado'),
+    hoy: dHoy
+  };
+}
+function textoAviso(v, cuando){
+  const c = CLIENTE_BY_ID[v.c];
+  const t = TIPOS[v.tipo];
+  const nombreCorto = shortName(c.nombre);
+  const fecha = v.dia+' de '+MESES[DEMO.month];
+  return 'Hola '+nombreCorto+', le recordamos que el '+fecha+' vence: '+
+    (v.tipo==='legal' ? v.concepto : t.label.toLowerCase())+
+    '.\n\nYa tenemos listo el cálculo para presentarlo a su nombre y evitar recargos. Si necesita algún dato, responda este mensaje.\n\n— AM Contadores y Abogados';
+}
+
+/* ---------- atenciones de la semana (Mon 23 a Sat 28 nov 2026) ---------- */
+const DIAS_SEMANA = [
+  {k:0, nombre:'Lunes',   n:23, fecha:'23 Nov'},
+  {k:1, nombre:'Martes',  n:24, fecha:'24 Nov'},
+  {k:2, nombre:'Miércoles',n:25, fecha:'25 Nov'},
+  {k:3, nombre:'Jueves',  n:26, fecha:'26 Nov'},
+  {k:4, nombre:'Viernes', n:27, fecha:'27 Nov'},
+  {k:5, nombre:'Sábado',  n:28, fecha:'28 Nov'}
+];
+let CITAS = [
+  {id:'a1', dia:0, hora:'15:00', c:'c7', prof:'marco', tipo:'Consulta legal',        estado:'agendada'},
+  {id:'a2', dia:0, hora:'16:30', c:'c3', prof:'marco', tipo:'Reunión',               estado:'agendada'},
+  {id:'a3', dia:1, hora:'09:00', c:'c4', prof:'ana',   tipo:'Revisión de impuestos', estado:'agendada'},
+  {id:'a4', dia:1, hora:'14:00', c:'c2', prof:'ana',   tipo:'Asesoría contable',     estado:'agendada'},
+  {id:'a5', dia:2, hora:'09:00', c:'c7', prof:'marco', tipo:'Reunión',               estado:'agendada'},
+  {id:'a6', dia:2, hora:'10:00', c:'c1', prof:'ana',   tipo:'Revisión de impuestos', estado:'agendada'},
+  {id:'a7', dia:3, hora:'11:00', c:'c5', prof:'ana',   tipo:'Asesoría contable',     estado:'atendida'},
+  {id:'a8', dia:3, hora:'15:00', c:'c3', prof:'marco', tipo:'Consulta legal',        estado:'agendada'},
+  {id:'a9', dia:4, hora:'09:30', c:'c8', prof:'ana',   tipo:'Asesoría contable',     estado:'agendada'},
+  {id:'a10',dia:5, hora:'10:00', c:'c7', prof:'marco', tipo:'Reunión',               estado:'atendida'}
+];
+
+/* ---------- consultas nuevas sin agendar ---------- */
+let SOLICITUDES = [
+  {id:'s1', nombre:'Juan Pérez Vargas',   negocio:'Distribuidora JP',        necesidad:'Trámite legal',   texto:'Consultó por constituir una sociedad para su negocio.',            tel:'+506 8-000-0000'},
+  {id:'s2', nombre:'Ana Vargas Rojas',    negocio:'Boutique Ana',            necesidad:'Impuestos',       texto:'Necesita ayuda con la declaración de renta del año.',              tel:'+506 8-000-0001'},
+  {id:'s3', nombre:'Luis Solano Méndez',  negocio:'Taller Solano',           necesidad:'Asesoría legal',  texto:'Quiere asesoría para contratos de alquiler de su local.',          tel:'+506 8-000-0002'}
+];
+
+/* ---------- tareas sin cerrar ---------- */
+const TAREAS = [
+  {t:'Subir el comprobante de cargas sociales de Panadería El Trigal', venc:true,  prof:'ana'},
+  {t:'Preparar el borrador de IVA de Restaurante Mar Azul',            venc:false, prof:'ana'},
+  {t:'Coordinar la firma del poder de Transportes del Valle',          venc:false, prof:'marco'},
+  {t:'Revisar el anticipo de renta de la Finca La Loma',               venc:false, prof:'ana'},
+  {t:'Presentar el acta de Constructora Sierra Verde ante el registro',venc:false, prof:'marco'}
+];
+
+/* ---------- honorarios del mes ---------- */
+const HONORARIOS = [
+  {c:'c1', concepto:'Contabilidad mensual',        prof:'ana',   monto:95000,  estado:'pagado'},
+  {c:'c1', concepto:'Declaración de IVA',          prof:'ana',   monto:25000,  estado:'pagado'},
+  {c:'c2', concepto:'Contabilidad mensual',        prof:'ana',   monto:85000,  estado:'pagado'},
+  {c:'c2', concepto:'Cargas sociales (CCSS)',      prof:'ana',   monto:15000,  estado:'pendiente'},
+  {c:'c3', concepto:'Asesoría legal mensual',      prof:'marco', monto:120000, estado:'pagado'},
+  {c:'c3', concepto:'Trámite de poder',            prof:'marco', monto:60000,  estado:'pendiente'},
+  {c:'c4', concepto:'Contabilidad mensual',        prof:'ana',   monto:85000,  estado:'pagado'},
+  {c:'c4', concepto:'Declaración de renta',        prof:'ana',   monto:40000,  estado:'pendiente'},
+  {c:'c5', concepto:'Contabilidad mensual',        prof:'ana',   monto:90000,  estado:'pagado'},
+  {c:'c5', concepto:'Cargas sociales (CCSS)',      prof:'ana',   monto:15000,  estado:'pendiente'},
+  {c:'c6', concepto:'Contabilidad mensual',        prof:'ana',   monto:75000,  estado:'pendiente'},
+  {c:'c7', concepto:'Asesoría legal mensual',      prof:'marco', monto:150000, estado:'pagado'},
+  {c:'c7', concepto:'Trámite de constitución',     prof:'marco', monto:95000,  estado:'pendiente'},
+  {c:'c8', concepto:'Contabilidad mensual',        prof:'ana',   monto:80000,  estado:'pagado'},
+  {c:'c9', concepto:'Contabilidad mensual',        prof:'ana',   monto:80000, estado:'pendiente'},
+  {c:'c9', concepto:'Cargas sociales (CCSS)',      prof:'ana',   monto:15000,  estado:'pendiente'}
+];
+
+/* ---------- navegación ---------- */
+let currentSec='panel';
+function go(sec){
+  currentSec=sec;
+  $$('.sec').forEach(s=>s.classList.toggle('on',s.id==='sec-'+sec));
+  $$('#nav button[data-sec]').forEach(b=>b.classList.toggle('active',b.dataset.sec===sec));
+  const crumbs={panel:'AM Contadores y Abogados · Costa Rica',vencimientos:'Vencimientos',clientes:'Clientes',atenciones:'Atenciones y citas',honorarios:'Honorarios',informes:'Informes',web:'Web pública'};
+  const cr=$('#crumb'); if(cr)cr.textContent=crumbs[sec]||'';
+  window.scrollTo(0,0);
+  closeSide();
+  if(tour.active && TOUR_STEPS[tour.i].sec!==sec){ endTour(true); toast('Recorrido cerrado: cambió de sección.'); }
+}
+function toggleSide(){$('#side').classList.toggle('open');$('#scrim').classList.toggle('on');}
+function closeSide(){$('#side').classList.remove('open');$('#scrim').classList.remove('on');}
+function enterApp(){$('#welcome').style.display='none';}
+
+/* ============================================================
+   PANEL DEL DÍA
+   ============================================================ */
+function renderPanel(){
+  const hoy = VENCIMIENTOS.filter(v=>v.dia===DEMO.today && v.estado!=='presentado' && v.estado!=='al día');
+  const semana = VENCIMIENTOS.filter(v=>v.dia>=DEMO.today && v.dia<=28 && v.estado!=='presentado' && v.estado!=='al día');
+  const citasHoy = CITAS.filter(c=>c.dia===0);
+  const cobros = HONORARIOS.reduce((a,h)=>a+h.monto,0);
+
+  $('#k-hoy').textContent = hoy.length;
+  $('#k-hoy-t').textContent = hoy.length? 'aviso de 2 días ya enviado por WhatsApp' : 'nada urgente por hoy';
+  $('#k-semana').textContent = semana.length;
+  $('#k-atenciones').textContent = citasHoy.length;
+  $('#k-atenciones-t').textContent = citasHoy.length+' entre contador y abogado';
+  $('#k-cobros').textContent = fmt(cobros);
+  $('#today-label').textContent = DIAS[1]+' '+DEMO.today+' de '+MESES[DEMO.month]+' de '+DEMO.year+' · lo que le toca hoy al despacho';
+
+  /* vencimientos hoy + semana */
+  let html='';
+  if(!semana.length){ html='<div class="note">Sin vencimientos próximos.</div>'; }
+  else{
+    semana.slice().sort((a,b)=>a.dia-b.dia).forEach(v=>{
+      const c=CLIENTE_BY_ID[v.c], t=TIPOS[v.tipo];
+      const esHoy = v.dia===DEMO.today;
+      html+='<div class="info-row"><span class="k"><b style="color:var(--ink)">'+shortName(c.nombre)+'</b><br>'+t.label+
+        '<br><span style="font-size:11.5px;color:#8b96a5">'+t.explain+'</span></span>'+
+        '<span class="v">'+(esHoy?'<span style="color:var(--red);font-weight:700">HOY</span><br>':'')+
+        'Vence '+fechaCorta(v.dia)+'<br>'+pillEstado(v.estado)+'</span></div>';
+    });
+  }
+  $('#hoy-list').innerHTML=html;
+
+  /* citas de hoy */
+  let cit='';
+  if(!citasHoy.length){ cit='<div class="note">Sin citas hoy.</div>'; }
+  else{
+    citasHoy.sort((a,b)=>a.hora.localeCompare(b.hora)).forEach(a=>{
+      const c=CLIENTE_BY_ID[a.c], p=PROFS[a.prof];
+      cit+='<div class="info-row"><span class="k"><b style="color:var(--ink)">'+a.hora+' · '+shortName(c.nombre)+'</b><br>'+
+        a.tipo+' · '+p.nombre+' ('+p.rol+')</span><span class="v">'+pillSimple(a.estado.charAt(0).toUpperCase()+a.estado.slice(1),'s-'+a.estado)+'</span></div>';
+    });
+  }
+  $('#hoy-citas').innerHTML=cit;
+
+  /* tareas */
+  let tsk='';
+  TAREAS.forEach(t=>{
+    const p=PROFS[t.prof];
+    tsk+='<div class="info-row"><span class="k"><b style="color:var(--ink)">'+(t.venc?'<span style="color:var(--red)">Vencida · </span>':'')+t.t+'</b><br><span style="font-size:11.5px;color:#8b96a5">'+p.nombre+'</span></span><span class="v"><span class="pill s-porvencer"><span class="dot"></span>Sin cerrar</span></span></div>';
+  });
+  $('#hoy-tareas').innerHTML=tsk;
+
+  /* avisos que salen hoy o en los próximos días */
+  let av='';
+  VENCIMIENTOS.filter(v=>v.estado==='por vencer' && v.dia>=DEMO.today).sort((a,b)=>a.dia-b.dia).forEach(v=>{
+    const c=CLIENTE_BY_ID[v.c];
+    const falta=v.dia-DEMO.today;
+    const cuando = falta<=0 ? '2 días antes (se envía hoy)' : (falta<=2 ? '2 días antes' : '7 días antes');
+    const env = avisoInfo(v);
+    const yaEnviado = (cuando.indexOf('7')===0 && env.d7==='enviado') || (cuando.indexOf('2')===0 && env.d2==='enviado');
+    av+='<div class="info-row"><span class="k"><b style="color:var(--ink)">'+shortName(c.nombre)+'</b><br>Aviso '+cuando+' · vence '+fechaCorta(v.dia)+'</span><span class="v">'+(yaEnviado?'<span class="pill s-presentado"><span class="dot"></span>Enviado</span>':'<span class="pill s-porvencer"><span class="dot"></span>Por enviar</span>')+'</span></div>';
+  });
+  if(!av) av='<div class="note">No hay avisos pendientes de enviar hoy.</div>';
+  $('#hoy-avisos').innerHTML=av;
+}
+
+/* ============================================================
+   VENCIMIENTOS
+   ============================================================ */
+function renderCalendario(){
+  const cal=$('#cal'); cal.innerHTML='';
+  const first=new Date(DEMO.year,DEMO.month,1).getDay();
+  const days=new Date(DEMO.year,DEMO.month+1,0).getDate();
+  /* celdas vacías al inicio */
+  for(let i=0;i<first;i++){ cal.innerHTML+='<div class="cday muted"></div>'; }
+  for(let d=1;d<=days;d++){
+    const evs=VENCIMIENTOS.filter(v=>v.dia===d);
+    const isToday = d===DEMO.today;
+    let inner='<div class="dn">'+d+'</div><div class="ev">';
+    evs.forEach(v=>{
+      const t=TIPOS[v.tipo], c=CLIENTE_BY_ID[v.c];
+      inner+='<div class="chip '+t.cls+'" title="'+shortName(c.nombre)+' · '+t.label+'">'+t.corto+' · '+shortName(c.nombre)+'</div>';
+    });
+    inner+='</div>';
+    cal.innerHTML+='<div class="cday'+(isToday?' today':'')+'">'+inner+'</div>';
+  }
+  /* pad final para completar la última semana */
+  const rest=(7-((first+days)%7))%7;
+  for(let i=0;i<rest;i++){ cal.innerHTML+='<div class="cday muted"></div>'; }
+}
+
+function renderVencimientos(){
+  const hoy=VENCIMIENTOS.filter(v=>v.dia===DEMO.today && v.estado!=='presentado' && v.estado!=='al día').length;
+  const body=$('#venc-body');
+  const orden=VENCIMIENTOS.slice().sort((a,b)=>a.dia-b.dia);
+  let html='';
+  orden.forEach(v=>{
+    const c=CLIENTE_BY_ID[v.c], t=TIPOS[v.tipo], a=avisoInfo(v);
+    const av7 = a.d7==='enviado' ? '<span style="color:var(--green)">✓ enviado</span>' : 'programado';
+    const av2 = a.d2==='enviado' ? '<span style="color:var(--green)">✓ enviado</span>' : 'programado';
+    const avisoTxt = '<span style="font-size:12px">7 días: '+av7+'<br>2 días: '+av2+'</span>';
+    html+='<tr class="clickable" onclick="openAviso(\''+v.id+'\')">'+
+      '<td class="wrap"><b>'+shortName(c.nombre)+'</b><br><span style="font-size:11.5px;color:#8b96a5">'+c.cedula+'</span></td>'+
+      '<td class="wrap"><b>'+t.label+'</b><br><span style="font-size:11.5px;color:#8b96a5">'+t.explain+'</span></td>'+
+      '<td>'+fechaCorta(v.dia)+'<br><span style="font-size:11.5px;color:#8b96a5">nov 2026</span></td>'+
+      '<td>'+pillEstado(v.estado)+'</td>'+
+      '<td>'+avisoTxt+'</td>'+
+      '<td><button class="btn sm" onclick="event.stopPropagation();openAviso(\''+v.id+'\')">Ver aviso</button></td></tr>';
+  });
+  body.innerHTML=html;
+
+  /* lista de avisos automáticos */
+  const al=$('#avisos-list');
+  let alh='';
+  const proximos=VENCIMIENTOS.slice().sort((a,b)=>a.dia-b.dia).filter(v=>v.estado==='por vencer'||v.estado==='vencido'||v.estado==='presentado').slice(0,6);
+  proximos.forEach(v=>{
+    const c=CLIENTE_BY_ID[v.c], t=TIPOS[v.tipo], a=avisoInfo(v);
+    alh+='<div class="info-row" style="cursor:pointer" onclick="openAviso(\''+v.id+'\')">'+
+      '<span class="k"><b style="color:var(--ink)">'+shortName(c.nombre)+'</b><br>'+t.label+' · vence '+fechaCorta(v.dia)+'</span>'+
+      '<span class="v"><button class="btn sm">Ver el aviso</button></span></div>';
+  });
+  al.innerHTML=alh;
+
+  /* maqueta por defecto en el panel de avisos (la que ve el recorrido) */
+  const destacado = VENCIMIENTOS.filter(v=>v.estado==='por vencer').sort((a,b)=>a.dia-b.dia)[0] || VENCIMIENTOS[0];
+  if(destacado){
+    const c=CLIENTE_BY_ID[destacado.c], t=TIPOS[destacado.tipo];
+    $('#aviso-preview').innerHTML=
+      '<div style="font-size:12.5px;color:var(--gray);margin-bottom:8px">Ejemplo de aviso que recibe el cliente por WhatsApp:</div>'+
+      '<div class="wa"><div class="phone">AM Contadores y Abogados · +506 7207 2084</div><div class="thread">'+
+      '<div class="msg out">'+textoAviso(destacado,'2 días antes').replace(/\n/g,'<br>')+'<div class="tm">2 días antes del vencimiento</div></div>'+
+      '</div></div>'+
+      '<div class="note" style="margin-top:10px">'+shortName(c.nombre)+' · '+t.label+' · vence '+fechaCorta(destacado.dia)+'.</div>';
+  }
+}
+
+/* ---------- modal del aviso de WhatsApp ---------- */
+function openAviso(id){
+  const v=VENCIMIENTOS.find(x=>x.id===id); if(!v)return;
+  const c=CLIENTE_BY_ID[v.c], t=TIPOS[v.tipo], a=avisoInfo(v);
+  const msg=textoAviso(v,'2 días antes');
+  $('#aviso-content').innerHTML=
+    '<div class="step" style="font-size:11.5px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.08em">Aviso automático</div>'+
+    '<h3 style="font-size:17px;margin:6px 0 4px;color:var(--navy)">'+shortName(c.nombre)+'</h3>'+
+    '<p style="margin:0 0 12px;color:var(--gray);font-size:13px">'+t.label+' · vence '+v.dia+' de '+MESES[DEMO.month]+' · '+pillEstado(v.estado)+'</p>'+
+    '<div class="wa"><div class="phone">AM Contadores y Abogados · +506 7207 2084</div><div class="thread">'+
+      '<div class="msg out">'+msg.replace(/\n/g,'<br>')+'<div class="tm">'+(a.d2==='enviado'?'enviado hoy 08:00':'se enviará 2 días antes')+'</div></div>'+
+    '</div></div>'+
+    '<div class="note" style="margin-top:14px">Esto es lo que el sistema envía solo: <b>7 días antes</b> y <b>2 días antes</b> del vencimiento, por WhatsApp. Nadie tiene que acordarse de la fecha.</div>';
+  $('#aviso-modal').classList.add('on');
+}
+function closeAviso(){$('#aviso-modal').classList.remove('on');}
+
+/* ============================================================
+   CLIENTES
+   ============================================================ */
+const SERVICIOS_LABEL={contabilidad:'Contabilidad',impuestos:'Impuestos',legal:'Asesoría legal',tramites:'Trámites',ccss:'Cargas sociales'};
+const SERVICIOS_CLIENTE={c1:['contabilidad','impuestos'],c2:['contabilidad','impuestos','ccss'],c3:['impuestos','legal','tramites'],c4:['contabilidad','impuestos'],c5:['contabilidad','impuestos','ccss'],c6:['contabilidad','impuestos'],c7:['legal','tramites','contabilidad'],c8:['contabilidad','impuestos'],c9:['contabilidad','impuestos','ccss']};
+
+function norm(s){return (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();}
+function renderClientes(){
+  const q=norm(($('#cl-q').value||'').trim());
+  const body=$('#clientes-body');
+  const lista=CLIENTES.filter(c=>{
+    if(!q)return true;
+    return norm(c.nombre).includes(q)||c.cedula.includes(q)||norm(c.zona).includes(q);
+  });
+  $('#clientes-count').textContent=lista.length+' de '+CLIENTES.length+' clientes · toque una fila para ver la ficha completa';
+  let html='';
+  lista.forEach(c=>{
+    const svc=(SERVICIOS_CLIENTE[c.id]||[]).map(s=>'<span class="pill" style="background:#f0f3f8;color:#5c6878;font-weight:500">'+SERVICIOS_LABEL[s]+'</span>').join(' ');
+    const pend=VENCIMIENTOS.filter(v=>v.c===c.id&&(v.estado==='vencido')).length;
+    const est=pend? pillSimple('Con pendientes','s-vencido') : pillSimple('Al día','s-aldia');
+    const p=PROFS[c.prof];
+    html+='<tr class="clickable" onclick="openFicha(\''+c.id+'\')">'+
+      '<td class="wrap"><b>'+c.nombre+'</b><br><span style="font-size:11.5px;color:#8b96a5">'+c.zona+' · cliente desde '+c.desde+'</span></td>'+
+      '<td>'+c.cedula+'</td>'+
+      '<td class="wrap">'+svc+'</td>'+
+      '<td>'+p.nombre+'<br><span style="font-size:11.5px;color:#8b96a5">'+p.rol+'</span></td>'+
+      '<td>'+est+'</td></tr>';
+  });
+  if(!lista.length){html='<tr><td colspan="5" style="text-align:center;color:var(--gray);padding:24px">No se encontraron clientes con ese criterio.</td></tr>';}
+  body.innerHTML=html;
+}
+
+const DOCS_CLIENTE={
+  c1:[{d:'Comprobante de IVA de octubre',f:'presentado'},{d:'Estados financieros del trimestre',f:'entregado'}],
+  c2:[{d:'Planilla de cargas sociales',f:'pendiente'},{d:'Declaración de IVA de octubre',f:'entregado'}],
+  c3:[{d:'Borrador de poder general',f:'en revisión'},{d:'Constancia de personería',f:'entregado'}],
+  c4:[{d:'Declaración de renta del año anterior',f:'entregado'}],
+  c5:[{d:'Comprobante de CCSS de octubre',f:'pendiente'}],
+  c6:[{d:'Declaración de IVA de octubre',f:'entregado'}],
+  c7:[{d:'Acta de junta registrada',f:'en revisión'},{d:'Constitución de sociedad',f:'en trámite'}],
+  c8:[{d:'Declaración de IVA de octubre',f:'entregado'}],
+  c9:[{d:'Comprobante de CCSS de octubre',f:'pendiente'}]
+};
+
+function openFicha(id){
+  const c=CLIENTE_BY_ID[id]; if(!c)return;
+  const p=PROFS[c.prof];
+  const vs=VENCIMIENTOS.filter(v=>v.c===c.id).sort((a,b)=>a.dia-b.dia);
+  const docs=DOCS_CLIENTE[c.id]||[];
+  const ats=CITAS.filter(a=>a.c===c.id);
+  const svc=(SERVICIOS_CLIENTE[c.id]||[]).map(s=>SERVICIOS_LABEL[s]).join(' · ');
+  const obligTxt=c.oblig.map(o=>TIPOS[o].label+' <span style="font-size:11px;color:#8b96a5">('+TIPOS[o].corto+')</span>').join('<br>');
+
+  let vh='';
+  vs.forEach(v=>{const t=TIPOS[v.tipo];
+    vh+='<div class="info-row"><span class="k">'+t.label+'<br><span style="font-size:11.5px;color:#8b96a5">Vence '+fechaCorta(v.dia)+'</span></span><span class="v">'+pillEstado(v.estado)+'</span></div>';
+  });
+  let dh='';
+  docs.forEach(d=>{dh+='<div class="info-row"><span class="k">'+d.d+'</span><span class="v"><span class="pill" style="background:#f0f3f8;color:#5c6878">'+d.f+'</span></span></div>';});
+  if(!dh)dh='<div class="note">Sin documentos registrados.</div>';
+  let ah='';
+  ats.forEach(a=>{const dd=DIAS_SEMANA[a.dia];
+    ah+='<div class="info-row"><span class="k">'+dd.nombre+' '+dd.n+' Nov · '+a.hora+'<br><span style="font-size:11.5px;color:#8b96a5">'+a.tipo+'</span></span><span class="v">'+pillSimple(a.estado.charAt(0).toUpperCase()+a.estado.slice(1),'s-'+a.estado)+'</span></div>';
+  });
+  if(!ah)ah='<div class="note">Sin atenciones esta semana.</div>';
+
+  $('#ficha-content').innerHTML=
+    '<div style="display:flex;align-items:center;gap:12px;margin-bottom:6px"><div class="av" style="width:44px;height:44px;font-size:15px;background:var(--navy2)">'+initials(c.nombre)+'</div>'+
+    '<div><h3 style="font-size:18px;color:var(--navy)">'+c.nombre+'</h3><span style="font-size:12.5px;color:var(--gray)">'+c.zona+' · cédula '+c.cedula+'</span></div></div>'+
+    '<div id="tour-ficha" style="margin-top:14px">'+
+      '<div class="card" style="margin-bottom:12px"><div class="bd">'+
+        '<div class="info-row"><span class="k">Teléfono</span><span class="v">'+c.tel+'</span></div>'+
+        '<div class="info-row"><span class="k">Lo atiende en el despacho</span><span class="v">'+p.nombre+' · '+p.rol+'</span></div>'+
+        '<div class="info-row"><span class="k">Servicios que cumplimos</span><span class="v" style="max-width:60%">'+svc+'</span></div>'+
+        '<div class="info-row"><span class="k">Obligaciones que cumple</span><span class="v" style="text-align:right">'+obligTxt+'</span></div>'+
+      '</div></div>'+
+      '<h4 style="font-size:14px;margin:0 0 6px">Sus vencimientos</h4>'+vh+
+      '<h4 style="font-size:14px;margin:16px 0 6px">Documentos entregados</h4>'+dh+
+      '<h4 style="font-size:14px;margin:16px 0 6px">Atenciones de esta semana</h4>'+ah+
+    '</div>';
+  $('#ficha-modal').classList.add('on');
+  if(tour.active && TOUR_STEPS[tour.i].target==='#tour-ficha'){ requestAnimationFrame(()=>setTimeout(placeStep,60)); }
+}
+function closeFicha(){$('#ficha-modal').classList.remove('on');}
+
+/* ============================================================
+   ATENCIONES Y CITAS
+   ============================================================ */
+function renderAtenciones(){
+  const ag=$('#agenda'); ag.innerHTML='';
+  DIAS_SEMANA.forEach(d=>{
+    const items=CITAS.filter(a=>a.dia===d.k).sort((a,b)=>a.hora.localeCompare(b.hora));
+    let inner='<div class="aday">'+d.nombre+'<br>'+d.fecha+'</div>';
+    if(!items.length) inner+='<div class="note" style="font-size:11.5px">Sin citas</div>';
+    items.forEach(a=>{
+      const c=CLIENTE_BY_ID[a.c], p=PROFS[a.prof];
+      inner+='<div class="aitem '+p.cls+'"><b>'+shortName(c.nombre)+'</b><span class="who">'+a.tipo+'</span>'+
+        '<div class="tm"><span style="font-size:11px;color:var(--gray)">'+a.hora+' · '+p.rol+'</span>'+pillSimple(a.estado.charAt(0).toUpperCase()+a.estado.slice(1),'s-'+a.estado)+'</div></div>';
+    });
+    ag.innerHTML+='<div class="acol">'+inner+'</div>';
+  });
+
+  const sl=$('#solicitudes-list');
+  const abiertas=SOLICITUDES.filter(s=>!s.convertida);
+  let sh='';
+  abiertas.forEach(s=>{
+    sh+='<div class="info-row"><span class="k" style="max-width:64%"><b style="color:var(--ink)">'+s.nombre+'</b> · '+s.negocio+
+      '<br><span style="font-size:12px;color:#6b7686">'+s.texto+'</span><br>'+
+      '<span style="font-size:11.5px;color:#8b96a5">Necesidad: '+s.necesidad+'</span></span>'+
+      '<span class="v"><button class="btn sm gold" onclick="abrirConvertir(\''+s.id+'\')">Convertir en cita</button></span></div>';
+  });
+  if(!sh)sh='<div class="note">Todas las consultas ya fueron agendadas.</div>';
+  sl.innerHTML=sh;
+}
+
+function abrirConvertir(id){
+  const s=SOLICITUDES.find(x=>x.id===id); if(!s)return;
+  window._convertId=id;
+  $('#cita-content').innerHTML=
+    '<div class="step" style="font-size:11.5px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.08em">Convertir consulta en cita</div>'+
+    '<h3 style="font-size:17px;margin:6px 0 4px;color:var(--navy)">'+s.nombre+'</h3>'+
+    '<p style="margin:0 0 8px;color:var(--gray);font-size:13px">'+s.negocio+' · '+s.necesidad+'</p>'+
+    '<label class="f">Profesional</label><select class="f" id="cv-prof"><option value="ana">Lic. Ana Mora · Contadora</option><option value="marco">Lic. Marco Jiménez · Abogado</option></select>'+
+    '<label class="f">Día</label><select class="f" id="cv-dia">'+DIAS_SEMANA.map(d=>'<option value="'+d.k+'">'+d.nombre+' '+d.n+' de noviembre</option>').join('')+'</select>'+
+    '<label class="f">Hora</label><select class="f" id="cv-hora"><option>09:00</option><option>10:00</option><option>11:00</option><option>14:00</option><option>15:00</option><option>16:00</option></select>'+
+    '<label class="f">Tipo de atención</label><select class="f" id="cv-tipo"><option>Asesoría contable</option><option>Revisión de impuestos</option><option>Consulta legal</option><option>Reunión</option></select>'+
+    '<div class="navrow" style="display:flex;gap:8px;margin-top:16px"><button class="btn primary" onclick="confirmarConvertir()">Agendar cita</button><button class="btn" onclick="closeCita()">Cancelar</button></div>';
+  $('#cita-modal').classList.add('on');
+}
+function confirmarConvertir(){
+  const id=window._convertId;
+  const s=SOLICITUDES.find(x=>x.id===id); if(!s)return;
+  const prof=$('#cv-prof').value, dia=+$('#cv-dia').value, hora=$('#cv-hora').value, tipo=$('#cv-tipo').value;
+  /* el cliente nuevo se agrega al padrón como cliente de ejemplo */
+  let cid='c'+ (CLIENTES.length+1);
+  CLIENTES.push({id:cid,nombre:s.negocio+(' S.A.'),cedula:'3-101-'+Math.floor(100000+CLIENTES.length*7),zona:'San José',tel:s.tel,desde:'2026',oblig:['iva'],prof:prof,estado:'al día'});
+  CLIENTE_BY_ID[cid]=CLIENTES[CLIENTES.length-1];
+  SERVICIOS_CLIENTE[cid]=prof==='ana'?['contabilidad','impuestos']:['legal'];
+  DOCS_CLIENTE[cid]=[];
+  CITAS.push({id:'a'+ (CITAS.length+1), dia:dia, hora:hora, c:cid, prof:prof, tipo:tipo, estado:'solicitada'});
+  s.convertida=true;
+  closeCita();
+  renderAtenciones(); renderPanel();
+  toast('Consulta convertida en cita: '+DIAS_SEMANA[dia].nombre+' '+hora+' con '+PROFS[prof].nombre);
+}
+function closeCita(){$('#cita-modal').classList.remove('on');}
+
+/* ============================================================
+   HONORARIOS
+   ============================================================ */
+function renderHonorarios(){
+  const total=HONORARIOS.reduce((a,h)=>a+h.monto,0);
+  const pag=HONORARIOS.filter(h=>h.estado==='pagado').reduce((a,h)=>a+h.monto,0);
+  const pend=total-pag;
+  $('#h-total').textContent=fmt(total);
+  $('#h-pagado').textContent=fmt(pag);
+  $('#h-pend').textContent=fmt(pend);
+  const body=$('#honor-body');
+  let html='';
+  HONORARIOS.forEach(h=>{
+    const c=CLIENTE_BY_ID[h.c], p=PROFS[h.prof];
+    html+='<tr><td class="wrap"><b>'+shortName(c.nombre)+'</b></td><td class="wrap">'+h.concepto+'</td>'+
+      '<td>'+p.nombre+'</td><td><b>'+fmt(h.monto)+'</b></td>'+
+      '<td>'+pillSimple(h.estado.charAt(0).toUpperCase()+h.estado.slice(1),'s-'+h.estado)+'</td></tr>';
+  });
+  body.innerHTML=html;
+}
+
+/* ============================================================
+   INFORMES (SVG/CSS propios, sin librerías)
+   ============================================================ */
+function renderInformes(){
+  /* 1. cumplidos vs vencidos */
+  const meses=['Jun','Jul','Ago','Sep','Oct','Nov'];
+  const cumplidos=[22,25,28,30,27,31];
+  const vencidos=[3,2,1,4,2,2];
+  const max1=Math.max(...cumplidos.map((c,i)=>c+vencidos[i]));
+  let h1='';
+  meses.forEach((m,i)=>{
+    const hc=Math.round(cumplidos[i]/max1*140), hv=Math.round(vencidos[i]/max1*140);
+    h1+='<div class="col"><div class="stack"><i style="height:'+hv+'px;background:var(--red)"></i><i style="height:'+hc+'px;background:var(--teal)"></i></div><div class="cl">'+m+'</div></div>';
+  });
+  $('#ch-cumpl').innerHTML=h1;
+
+  /* 2. atenciones por mes */
+  const atenc=[18,21,20,24,26,23];
+  const max2=Math.max(...atenc);
+  let h2='';
+  meses.forEach((m,i)=>{
+    const h=Math.round(atenc[i]/max2*140);
+    h2+='<div class="col"><div class="stack"><i style="height:'+h+'px;background:linear-gradient(180deg,var(--blue),#1f4d80)"></i></div><div class="cl">'+m+'</div></div>';
+  });
+  $('#ch-atenc').innerHTML=h2;
+
+  /* 3. clientes por servicio */
+  const serv=[['Contabilidad',9],['Impuestos',8],['Cargas sociales',5],['Asesoría legal',4],['Trámites',3]];
+  const max3=serv[0][1];
+  let h3='';
+  serv.forEach(([lb,n])=>{
+    h3+='<div class="hbar-row"><span class="lb">'+lb+'</span><span class="tr"><i style="width:'+Math.round(n/max3*100)+'%;background:var(--teal)"></i></span><span class="vl">'+n+'</span></div>';
+  });
+  $('#ch-serv').innerHTML=h3;
+
+  /* 4. cobrado vs pendiente (donut SVG) */
+  const total=HONORARIOS.reduce((a,h)=>a+h.monto,0);
+  const pag=HONORARIOS.filter(h=>h.estado==='pagado').reduce((a,h)=>a+h.monto,0);
+  const pend=total-pag;
+  const pct=pag/total;
+  const C=2*Math.PI*15.9;
+  const donut=$('#ch-donut');
+  donut.innerHTML=
+    '<circle cx="21" cy="21" r="15.9" fill="none" stroke="#eef1f6" stroke-width="5"/>'+
+    '<circle cx="21" cy="21" r="15.9" fill="none" stroke="var(--teal)" stroke-width="5" stroke-dasharray="'+(pct*C)+' '+C+'" stroke-dashoffset="0" transform="rotate(-90 21 21)"/>'+
+    '<text x="21" y="20.5" text-anchor="middle" font-size="6" font-weight="700" fill="#0f2740">'+Math.round(pct*100)+'%</text>'+
+    '<text x="21" y="26" text-anchor="middle" font-size="2.8" fill="#5c6878">cobrado</text>';
+  $('#ch-donut-leg').innerHTML=
+    '<span><i style="background:var(--teal)"></i>Cobrado<b>'+fmt(pag)+'</b></span>'+
+    '<span><i style="background:#eef1f6;border:1px solid #dfe5ee"></i>Pendiente<b>'+fmt(pend)+'</b></span>'+
+    '<span style="color:var(--gray);font-size:12px">Total del mes<b>'+fmt(total)+'</b></span>';
+}
+
+/* ============================================================
+   WEB PÚBLICA — formulario que arma el WhatsApp
+   ============================================================ */
+const WA_NUM='50672072084';
+function armarConsulta(){
+  const nombre=($('#wf-nombre').value||'').trim()||'(sin nombre)';
+  const negocio=($('#wf-negocio').value||'').trim()||'(sin negocio)';
+  const nec=$('#wf-necesidad').value;
+  const det=($('#wf-detalle').value||'').trim();
+  const texto='Hola AM Contadores y Abogados, quiero solicitar asesoría.\n\n'+
+    'Nombre: '+nombre+'\nNegocio: '+negocio+'\nNecesito: '+nec+
+    (det?('\nDetalle: '+det):'')+'\n\n¿Me pueden indicar cómo seguimos?';
+  const url='https://wa.me/'+WA_NUM+'?text='+encodeURIComponent(texto);
+  $('#wf-result').innerHTML=
+    '<div style="font-size:12.5px;color:var(--gray);margin-bottom:8px">Mensaje listo. Se abre WhatsApp con este texto hacia el +506 7207 2084:</div>'+
+    '<div class="wa" style="margin-bottom:12px"><div class="phone">AM Contadores y Abogados · +506 7207 2084</div><div class="thread">'+
+    '<div class="msg out">'+texto.replace(/\n/g,'<br>')+'</div></div></div>'+
+    '<a class="btn gold" id="wa-out" href="'+url+'" target="_blank" rel="noopener">Abrir en WhatsApp</a>'+
+    '<div class="note" style="margin-top:10px;word-break:break-all">'+url+'</div>';
+  toast('Mensaje de WhatsApp armado.');
+}
+
+/* ============================================================
+   RECORRIDO GUIADO (7 pasos)
+   ============================================================ */
+const TOUR_STEPS=[
+  {sec:'panel', target:'#tour-hoy', title:'Esto es lo que ve al entrar: lo que le toca hoy',
+   text:'El panel del día reúne lo urgente: los vencimientos que hay que cumplir hoy y esta semana (con el aviso ya enviado), las citas de hoy, las tareas sin cerrar y los avisos que están por salir. En una sola pantalla, sin buscar en cuadernos.'},
+  {sec:'vencimientos', target:'#tour-cal', title:'Los vencimientos del mes, cada cliente en su fecha',
+   text:'Este calendario ubica cada obligación en el día que vence, con un color por tipo: impuesto de ventas (IVA), seguridad social (CCSS), declaración anual de renta y trámites legales. Así se ve de un vistazo qué días vienen cargados.'},
+  {sec:'vencimientos', target:'#tour-aviso', title:'El aviso automático antes de que venza',
+   text:'Cada vencimiento programa dos recordatorios: 7 días antes y 2 días antes. Le llegan al cliente por WhatsApp con la fecha y lo que hay que presentar. Nadie tiene que acordarse: el sistema avisa solo. A la derecha ve el mensaje exacto que recibiría el cliente.'},
+  {sec:'clientes', target:'#tour-ficha', title:'La ficha del cliente con todo lo suyo',
+   text:'Al abrir un cliente se ve todo junto: sus datos, qué obligaciones cumple, sus vencimientos, los documentos entregados y quién lo atiende en el despacho (contador o abogado).',
+   before(){ openFicha('c1'); }},
+  {sec:'atenciones', target:'#tour-agenda', title:'Las atenciones y citas del despacho',
+   text:'La agenda de la semana por profesional: qué atiende la contadora y qué el abogado, con el tipo de atención y su estado. Una consulta nueva entra como «solicitada» y se convierte en cita con un clic.'},
+  {sec:'honorarios', target:'#tour-honor', title:'Los honorarios y quién debe qué',
+   text:'La facturación del mes por cliente y concepto, con lo pagado y lo pendiente y el total del mes. Se ve de un vistazo quién tiene saldo por cobrar.'},
+  {sec:'informes', target:'#tour-inf', title:'Los informes y la página pública',
+   text:'Con los gráficos ve cómo va el despacho: vencimientos cumplidos contra vencidos, atenciones por mes, clientes por servicio y cuánto ha cobrado frente a lo pendiente. Y la web pública es la puerta de entrada: el cliente pide asesoría y el mensaje le llega ya armado por WhatsApp.'}
+];
+const tour={active:false,i:0,auto:false,autoT:null,autoStart:0,tickT:null};
+function startTour(){
+  enterApp();
+  tour.active=true;tour.i=0;
+  $('#tour-close').style.display='block';
+  const bt=$('#btn-tour'); if(bt)bt.style.visibility='hidden';
+  showStep(0);
+}
+function endTour(silent){
+  tour.active=false;stopAuto();
+  $('#tour-spot').style.display='none';$('#tour-card').style.display='none';$('#tour-close').style.display='none';
+  const bt=$('#btn-tour'); if(bt)bt.style.visibility='visible';
+  closeFicha(); closeAviso();
+  if(!silent)toast('Recorrido finalizado.');
+}
+function showStep(n){
+  tour.i=Math.max(0,Math.min(TOUR_STEPS.length-1,n));
+  const st=TOUR_STEPS[tour.i];
+  go(st.sec);
+  if(st.before)st.before();
+  tour.active=true;
+  requestAnimationFrame(()=>setTimeout(()=>placeStep(),80));
+  renderCard();
+}
+function renderCard(){
+  const st=TOUR_STEPS[tour.i];
+  const n=tour.i+1,tot=TOUR_STEPS.length;
+  $('#tour-card').innerHTML=
+    '<div class="step">Paso '+n+' de '+tot+'</div>'+
+    '<h3>'+st.title+'</h3>'+
+    '<p>'+st.text+'</p>'+
+    '<div class="prog '+(tour.auto?'on':'')+'"><i id="tour-prog"></i></div>'+
+    '<div class="navrow">'+
+      '<button class="btn sm" onclick="prevStep()" '+(tour.i===0?'disabled style="opacity:.5"':'')+'>Atrás</button>'+
+      '<button class="btn sm primary" onclick="nextStep()">'+(tour.i===tot-1?'Finalizar':'Siguiente')+'</button>'+
+      '<span class="sp"></span>'+
+      '<button class="btn sm" onclick="toggleAuto()">'+(tour.auto?'Pausar':'Automático')+'</button>'+
+      '<button class="btn sm" onclick="endTour()">Salir</button>'+
+    '</div>';
+  $('#tour-card').style.display='block';
+}
+function nextStep(){if(tour.i>=TOUR_STEPS.length-1){endTour();}else{showStep(tour.i+1);}}
+function prevStep(){if(tour.i>0)showStep(tour.i-1);}
+function toggleAuto(){
+  if(tour.auto){stopAuto();}
+  else{
+    tour.auto=true;tour.autoStart=Date.now();
+    const pr=$('#tour-card').querySelector('.prog'); if(pr)pr.classList.add('on');
+    tour.autoT=setInterval(()=>{ if(tour.i>=TOUR_STEPS.length-1){stopAuto();return;} showStep(tour.i+1); tour.autoStart=Date.now(); },6000);
+    tour.tickT=setInterval(()=>{const el=$('#tour-prog');if(el){const p=Math.min(100,(Date.now()-tour.autoStart)/6000*100);el.style.width=p+'%';}},100);
+    renderCard();
+  }
+}
+function stopAuto(){tour.auto=false;clearInterval(tour.autoT);clearInterval(tour.tickT);const el=$('#tour-prog');if(el)el.style.width='0';}
+function placeStep(){
+  if(!tour.active)return;
+  const st=TOUR_STEPS[tour.i];
+  const el=document.querySelector(st.target);
+  const card=$('#tour-card');
+  const sp=$('#tour-spot');
+  if(!el){ sp.style.display='none'; card.style.left='14px'; card.style.top='70px'; return; }
+  /* asegurar que el elemento quede a la vista */
+  const r0=el.getBoundingClientRect();
+  if(r0.top<72 || r0.bottom>window.innerHeight-24){ el.scrollIntoView({block:'center',inline:'nearest'}); }
+  const r=el.getBoundingClientRect();
+  const pad=8;
+  sp.style.display='block';
+  sp.style.left=(r.left-pad)+'px';
+  sp.style.top=(r.top-pad)+'px';
+  sp.style.width=(r.width+pad*2)+'px';
+  sp.style.height=(r.height+pad*2)+'px';
+  const cw=Math.min(390,window.innerWidth-28);
+  const ch=card.offsetHeight||210;
+  let left=r.left;
+  if(left+cw>window.innerWidth-14)left=window.innerWidth-cw-14;
+  if(left<14)left=14;
+  let top=r.bottom+14;
+  if(top+ch>window.innerHeight-14){ top=Math.max(14,r.top-ch-14); }
+  card.style.left=left+'px';
+  card.style.top=top+'px';
+}
+window.addEventListener('resize',()=>{if(tour.active)placeStep();});
+window.addEventListener('scroll',()=>{if(tour.active)placeStep();},true);
+document.addEventListener('keydown',e=>{
+  if(!tour.active)return;
+  if(e.key==='ArrowRight')nextStep();
+  else if(e.key==='ArrowLeft')prevStep();
+  else if(e.key==='Escape')endTour();
+});
+/* cerrar modales al hacer clic afuera */
+$('#ficha-modal').addEventListener('click',e=>{if(e.target.id==='ficha-modal')closeFicha();});
+$('#aviso-modal').addEventListener('click',e=>{if(e.target.id==='aviso-modal')closeAviso();});
+$('#cita-modal').addEventListener('click',e=>{if(e.target.id==='cita-modal')closeCita();});
+
+/* ============================================================
+   INIT
+   ============================================================ */
+function init(){
+  renderPanel();
+  renderCalendario();
+  renderVencimientos();
+  renderClientes();
+  renderAtenciones();
+  renderHonorarios();
+  renderInformes();
+}
+init();
+
+</script>
+</body>
+</html>
